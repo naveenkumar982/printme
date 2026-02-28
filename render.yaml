@@ -3,7 +3,7 @@ services:
   - type: web
     name: printme-api
     env: node
-    buildCommand: cd api && npm install && npx prisma generate
+    buildCommand: cd api && npm install && npx prisma generate && npx prisma db push --skip-generate
     startCommand: cd api && node src/index.js
     envVars:
       - key: DATABASE_URL
@@ -27,7 +27,7 @@ services:
       - key: AWS_BUCKET_NAME
         sync: false
       - key: CLIENT_URL
-        value: "https://printme.vercel.app" # URL where the Vercel app will be hosted
+        value: "https://printme-store.web.app"
 
   # ── Background Worker ──
   - type: worker
