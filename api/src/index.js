@@ -79,25 +79,28 @@ app.use((_req, res) => {
 // ── Global Error Handler ──
 app.use(errorHandler);
 
-// ── Start Server ──
-const server = app.listen(PORT, () => {
-    console.log(`
+// ── Start Server (only in non-serverless / local dev) ──
+if (!process.env.VERCEL) {
+    const server = app.listen(PORT, () => {
+        console.log(`
   ╔══════════════════════════════════════╗
   ║    🖨️  PrintME API v1.0.0            ║
   ║    Running on port ${PORT}              ║
   ║    Environment: ${process.env.NODE_ENV || 'development'}     ║
   ╚══════════════════════════════════════╝
   `);
-});
+    });
 
-// Graceful shutdown
-const shutdown = async () => {
-    console.log('\nShutting down gracefully...');
-    await prisma.$disconnect();
-    server.close(() => process.exit(0));
-};
+    // Graceful shutdown
+    const shutdown = async () => {
+        console.log('\nShutting down gracefully...');
+        await prisma.$disconnect();
+        server.close(() => process.exit(0));
+    };
 
-process.on('SIGINT', shutdown);
-process.on('SIGTERM', shutdown);
+    process.on('SIGINT', shutdown);
+    process.on('SIGTERM', shutdown);
+}
 
+// Export for Vercel serverless
 export default app;
