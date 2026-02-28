@@ -1,0 +1,22 @@
+{
+  "name": "printme",
+  "version": "1.0.0",
+  "private": true,
+  "description": "PrintME — Custom Printing E-Commerce Platform",
+  "workspaces": [
+    "api",
+    "worker",
+    "web"
+  ],
+  "scripts": {
+    "dev:api": "npm run dev --workspace=api",
+    "dev:worker": "npm run dev --workspace=worker",
+    "dev:web": "npm run dev --workspace=web",
+    "lint": "eslint . --ext .js,.jsx",
+    "format": "prettier --write \"**/*.{js,jsx,json,css,md}\""
+  },
+  "devDependencies": {
+    "eslint": "^8.56.0",
+    "prettier": "^3.2.0"
+  }
+}

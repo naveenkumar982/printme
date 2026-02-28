@@ -1,0 +1,60 @@
+version: '3.9'
+
+services:
+  # ── PostgreSQL ──
+  postgres:
+    image: postgres:15-alpine
+    container_name: printme-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: printme
+      POSTGRES_PASSWORD: printme_secret
+      POSTGRES_DB: printme_db
+    ports:
+      - '5432:5432'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U printme -d printme_db']
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ── API Server ──
+  api:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    container_name: printme-api
+    restart: unless-stopped
+    ports:
+      - '4000:4000'
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://printme:printme_secret@postgres:5432/printme_db
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./api:/app/api
+      - /app/api/node_modules
+
+  # ── Worker ──
+  worker:
+    build:
+      context: .
+      dockerfile: worker/Dockerfile
+    container_name: printme-worker
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      DATABASE_URL: postgresql://printme:printme_secret@postgres:5432/printme_db
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./worker:/app/worker
+      - /app/worker/node_modules
+
+volumes:
+  pgdata:
